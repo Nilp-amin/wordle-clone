@@ -1,5 +1,4 @@
 import React from "react";
-import { useEffect } from "react";
 import ReactDOM from "react-dom";
 
 import "./index.css";
@@ -10,75 +9,24 @@ import Button from "./buttonComponents/button";
 
 class Tile extends React.Component {
     render() {
-        const id = this.props.id;
         return (
             <div 
                 className="tile" 
-                style={{backgroundColor: this.props.colors[id]}} 
-                onKeyDown={(e) => this.props.onKeyDown(e)}
+                style={{backgroundColor: this.props.color}} 
                 tabIndex={"0"}
             >
-                {this.props.values[id]}
+                {this.props.value}
             </div>
         );
     }
 }
 
 class BoardRow extends React.Component {
-    constructor(props) {
-        super(props);
-        const tileColorAbsent = "#3a3a3c";
-        const tileColorPresent = "#b59f3b";
-        const tileColorCorrect = "#538d4e";
-        this.state = {
-            values: Array(5).fill(null),
-            tileColors: Array(5).fill(tileColorAbsent),
-            activeTileIndex: 0,
-        }
-
-        this.handleKeyDown = this.handleKeyDown.bind(this);
-    }
-
     renderTile(i) {
         return <Tile 
-            onKeyDown={e => this.handleKeyDown(e)}
-            values={this.state.values}
-            colors={this.state.tileColors}
-            id={i}
+            value={this.props.data[i]}
+            color={this.props.tileColors[i]}
         />
-    }
-
-    handleKeyDown(e) {
-        const keyPressed = e.key;
-        const val = this.state.values.slice();
-        var tileIndex = this.state.activeTileIndex;
-        if (keyPressed.length === 1 && keyPressed.match(/[a-z]/i)) {
-            if (tileIndex < 5) {
-                val[tileIndex] = keyPressed;
-            }
-            if (tileIndex < this.state.values.length) {
-                tileIndex++;
-            }
-
-            this.setState(
-                {
-                    values: val,
-                    activeTileIndex: tileIndex,
-                }
-            );
-        } else if (keyPressed === "Backspace") {
-            if (tileIndex > 0) {
-                tileIndex--;
-            }
-            val[tileIndex] = null;
-
-            this.setState(
-                {
-                    values: val,
-                    activeTileIndex: tileIndex,
-                }
-            );
-        }
     }
 
     render() {
@@ -95,15 +43,75 @@ class BoardRow extends React.Component {
 }
 
 class Board extends React.Component {
+    constructor(props) {
+        super(props);
+        const tileColorAbsent = "#3a3a3c";
+        const tileColorPresent = "#b59f3b";
+        const tileColorCorrect = "#538d4e";
+        this.state = {
+            boardState: Array.from({length: 6}, e => Array(5).fill(null)),
+            boardColor: Array.from({length: 6}, e => Array(5).fill(tileColorAbsent)),
+            activeRow: 0,
+            activeTileIndex: 0,
+        }
+
+        this.handleKeyDown = this.handleKeyDown.bind(this);
+    }
+
+    // TODO: Check if row char after 5 letters entered and "enter" key pressed
+
+    handleKeyDown(e) {
+        const keyPressed = e.key;
+        const boardState = this.state.boardState.slice();
+        var boardRow = this.state.activeRow;
+        var tileIndex = this.state.activeTileIndex;
+        if (keyPressed.length === 1 && keyPressed.match(/[a-z]/i)) {
+           if (boardRow < boardState.length && tileIndex < boardState[0].length) {
+               boardState[boardRow][tileIndex] = keyPressed;
+           }
+           if (tileIndex < boardState[0].length) {
+               tileIndex++;
+           }
+           if (boardRow < boardState.length && tileIndex === boardState[0].length) {
+               tileIndex = 0;
+               boardRow++;
+           }
+           this.setState(
+               {
+                   boardState: boardState,
+                   activeRow: boardRow,
+                   activeTileIndex: tileIndex,
+               }
+           );
+        } else if (keyPressed === "Backspace") {
+            if (tileIndex > 0) {
+                tileIndex--;
+            } else if (boardRow > 0) {
+                tileIndex = 4;
+                boardRow--;
+            }
+            boardState[boardRow][tileIndex] = null;
+
+            this.setState(
+                {
+                    boardState: boardState,
+                    activeTileIndex: tileIndex,
+                    activeRow: boardRow,
+                }
+            );
+        }
+    }
+
     render() {
+        window.addEventListener("keydown", this.handleKeyDown);
         return (
             <div id="board">
-                <BoardRow />
-                <BoardRow />
-                <BoardRow />
-                <BoardRow />
-                <BoardRow />
-                <BoardRow />
+                <BoardRow data={this.state.boardState[0]} tileColors={this.state.boardColor[0]}/>
+                <BoardRow data={this.state.boardState[1]} tileColors={this.state.boardColor[1]}/>
+                <BoardRow data={this.state.boardState[2]} tileColors={this.state.boardColor[2]}/>
+                <BoardRow data={this.state.boardState[3]} tileColors={this.state.boardColor[3]}/>
+                <BoardRow data={this.state.boardState[4]} tileColors={this.state.boardColor[4]}/>
+                <BoardRow data={this.state.boardState[5]} tileColors={this.state.boardColor[5]}/>
             </div>
         );
     }
