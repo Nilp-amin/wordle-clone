@@ -10,7 +10,12 @@ class Button extends React.Component {
 
     render() {
         return (
-            <button id={this.props.id} onClick={() => this.props.onClick()}>
+            <button 
+                className={this.props.className}
+                id={this.props.id} 
+                onClick={() => this.props.onClick()}
+                style={this.props.style}
+            >
                 {this.props.data}
             </button>
         );

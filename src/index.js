@@ -5,6 +5,7 @@ import "./index.css";
 
 import SvgHelp from "./iconComponents/help";
 import SvgSetting from "./iconComponents/setting";
+import SvgBackspace from "./iconComponents/backspace";
 import Button from "./buttonComponents/button"; 
 
 class Tile extends React.Component {
@@ -43,6 +44,75 @@ class BoardRow extends React.Component {
 }
 
 class Board extends React.Component {
+    render() {
+        return (
+            <div id="board">
+                <BoardRow data={this.props.boardState[0]} tileColors={this.props.boardColor[0]}/>
+                <BoardRow data={this.props.boardState[1]} tileColors={this.props.boardColor[1]}/>
+                <BoardRow data={this.props.boardState[2]} tileColors={this.props.boardColor[2]}/>
+                <BoardRow data={this.props.boardState[3]} tileColors={this.props.boardColor[3]}/>
+                <BoardRow data={this.props.boardState[4]} tileColors={this.props.boardColor[4]}/>
+                <BoardRow data={this.props.boardState[5]} tileColors={this.props.boardColor[5]}/>
+            </div>
+        );
+    }
+}
+
+class KeyBoard extends React.Component {
+    topRowData = ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"];
+    middleRowData = ["a", "s", "d", "f", "g", "h", "j", "k", "l"];
+    bottomRowData = ["z", "x", "c", "v", "b", "n", "m"];
+
+    handleButtonClick(data) {
+        window.dispatchEvent(new KeyboardEvent("keydown", {"key": data}));
+    }
+
+    keyBoardRow(data) {
+        const row = [];
+        for (let i = 0; i < data.length; i++) {
+            row.push(
+                <Button 
+                    key={data[i]} 
+                    data={data[i]}
+                    onClick={() => this.handleButtonClick(data[i])}
+                    style={{backgroundColor: this.props.data[data[i]]}}
+                />
+            );
+        }
+
+        return row;
+    }
+
+    render() {
+        return(
+            <div id="keyboard">
+                <div className="row">
+                    {this.keyBoardRow(this.topRowData)}
+                </div>
+                <div className="row">
+                    <div className="spacer half"></div>
+                    {this.keyBoardRow(this.middleRowData)}
+                    <div className="spacer half"></div>
+                </div>
+                <div className="row">
+                    <Button 
+                        className="one-and-a-half" 
+                        data="enter"
+                        onClick={() => this.handleButtonClick("Enter")}
+                    />
+                    {this.keyBoardRow(this.bottomRowData)}
+                    <Button 
+                        className="one-and-a-half" 
+                        data={<SvgBackspace height={24} width={24}/>}
+                        onClick={() => this.handleButtonClick("Backspace")}
+                    />
+                </div>
+            </div>
+        );
+    }
+} 
+
+class Game extends React.Component {
     tileEmpty = "#000000";
     tileColorAbsent = "#3a3a3c";
     tileColorPresent = "#b59f3b";
@@ -52,6 +122,13 @@ class Board extends React.Component {
         this.state = {
             boardState: Array.from({length: 6}, e => Array(5).fill(null)),
             boardColor: Array.from({length: 6}, e => Array(5).fill(this.tileEmpty)),
+            keyBoardColor: {"a": "", "b": "", "c": "", "d": "",
+                            "e": "", "f": "", "g": "", "h": "",
+                            "i": "", "j": "", "k": "", "l": "",
+                            "m": "", "n": "", "o": "", "p": "",
+                            "q": "", "r": "", "s": "", "t": "",
+                            "u": "", "v": "", "w": "", "x": "",
+                            "y": "", "z": ""},
             activeRow: 0,
             activeTileIndex: 0,
             correctWord: "hello",
@@ -83,12 +160,11 @@ class Board extends React.Component {
                 } else {
                     tileColors[i] = this.tileColorPresent;
                 }
-                correctWordCharCount[guess.charAt(i)] = --correctWordCharCount[guess.charAt(i)];
+                --correctWordCharCount[guess.charAt(i)];
             }
         }
 
         return tileColors;
-
     }
 
     handleKeyDown(e) {
@@ -124,7 +200,14 @@ class Board extends React.Component {
             });
         } else if (keyPressed === "Enter" && tileIndex === boardState[0].length) {
             const boardColor = this.state.boardColor;
+            const keyboardColor = this.state.keyBoardColor;
+            // Change game colors 
             boardColor[boardRow] = this.checkUserGuess(this.state.boardState[boardRow].join(""));
+            for (let i = 0; i < boardState[boardRow].length; i++) {
+                const guessChar = boardState[boardRow][i];
+                console.log();
+                keyboardColor[guessChar] = boardColor[boardRow][i];
+            }
 
             tileIndex = 0;
             if (boardRow < boardState.length) {
@@ -133,31 +216,11 @@ class Board extends React.Component {
 
             this.setState({
                 boardColor: boardColor,
+                keyboardColor: keyboardColor,
                 activeRow: boardRow,
                 activeTileIndex: tileIndex,
             });
         }
-    }
-
-    // TODO: Add keyboard to webpage
-    render() {
-        window.addEventListener("keydown", this.handleKeyDown);
-        return (
-            <div id="board">
-                <BoardRow data={this.state.boardState[0]} tileColors={this.state.boardColor[0]}/>
-                <BoardRow data={this.state.boardState[1]} tileColors={this.state.boardColor[1]}/>
-                <BoardRow data={this.state.boardState[2]} tileColors={this.state.boardColor[2]}/>
-                <BoardRow data={this.state.boardState[3]} tileColors={this.state.boardColor[3]}/>
-                <BoardRow data={this.state.boardState[4]} tileColors={this.state.boardColor[4]}/>
-                <BoardRow data={this.state.boardState[5]} tileColors={this.state.boardColor[5]}/>
-            </div>
-        );
-    }
-}
-
-class Game extends React.Component {
-    constructor(props) {
-        super(props);
     }
 
     handleHelpButtonClick() {
@@ -165,10 +228,11 @@ class Game extends React.Component {
     }
 
     handleSettingButtonClick() {
-        console.log("Clicked Setting Buttin!");
+        console.log("Clicked Setting Button!");
     }
 
     render() {
+        window.addEventListener("keydown", this.handleKeyDown);
         return (
             <div className="game">
                 <header>
@@ -189,7 +253,10 @@ class Game extends React.Component {
                     </div>
                 </header>
                 <div id="board-container">
-                    <Board />
+                    <Board boardState={this.state.boardState} boardColor={this.state.boardColor}/>
+                </div>
+                <div id="game-keyboard">
+                    <KeyBoard data={this.state.keyBoardColor}/>
                 </div>
             </div>
             

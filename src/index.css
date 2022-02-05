@@ -1,8 +1,9 @@
-:root { 
+html, body, #root, .App { 
     background-color: black;
     font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
     max-width: 500px !important;
     margin: 0 auto !important;
+    height: 100% !important;
     --tile-text-colour: #d7dadc;
     --color-absent: #3a3a3c;
     --color-present: #b59f3b;
@@ -13,10 +14,9 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    color: white;
-    border-bottom: 1px solid gray;
+    color: #d7dadc;
+    border-bottom: 1px solid #3a3a3c;
     width: 100%;
-    height: 50px;
 }
 
 header .title {
@@ -32,7 +32,23 @@ header .title {
 }
 
 button {
+    font-family: inherit;
+    font-weight: bold;
+    border: 0;
+    padding: 0;
+    margin: 0 6px 0 0;
+    height: 58px;
+    border-radius: 4px;
     cursor: pointer;
+    user-select: none;
+    background-color: #818384;
+    color: #d7dadc;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-transform: uppercase;
+    -webkit-tap-highlight-color: rgba(0,0,0,0.3);
 }
 
 #help-button, #setting-button {
@@ -48,6 +64,7 @@ button {
     display: flex;
     text-align: center;
     flex-direction: column;
+    margin: 0 auto;
 }
 
 .menu {
@@ -59,6 +76,7 @@ button {
     justify-content: center;
     align-items: center;
     flex-grow: 1;
+    overflow: hidden;
 }
 
 #board {
@@ -91,6 +109,27 @@ button {
     color: #d7dadc;
     text-transform: uppercase;
     user-select: none;
+}
+
+#keyboard {
+    margin: 0 8px;
+    user-select: none;
+}
+
+.row {
+    display: flex;
+    width: 100%;
+    margin: 0 auto 8px;
+    touch-action: manipulation;
+}
+
+.half {
+    flex: 0.5;
+}
+
+.one-and-a-half {
+    flex: 1.5;
+    font-size: 12px;
 }
 
 .todo {
