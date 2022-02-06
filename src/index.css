@@ -10,12 +10,22 @@ html, body, #root, .App {
     --color-correct: #538d4e;
 }
 
+h1 {
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
 header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     color: #d7dadc;
     border-bottom: 1px solid #3a3a3c;
+    height: 50px;
     width: 100%;
 }
 
@@ -35,7 +45,7 @@ button {
     font-family: inherit;
     font-weight: bold;
     border: 0;
-    padding: 0;
+    padding: 0 4px;
     margin: 0 6px 0 0;
     height: 58px;
     border-radius: 4px;
@@ -51,7 +61,7 @@ button {
     -webkit-tap-highlight-color: rgba(0,0,0,0.3);
 }
 
-#help-button, #setting-button {
+#help-button, #setting-button, #statistics-button {
     height: auto;
     width: auto;
     background: none;
@@ -68,6 +78,7 @@ button {
 }
 
 .menu {
+    display: flex;
     text-align: center;
 }
 
@@ -130,6 +141,144 @@ button {
 .one-and-a-half {
     flex: 1.5;
     font-size: 12px;
+}
+
+.overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 3000;
+    display: flex;
+}
+
+.content {
+    position: relative;
+    border-radius: 8px;
+    border: 1px solid #1a1a1b;
+    background-color: #121213;
+    color: #d7dadc;
+    box-shadow: 0 4px 23px 0 rgb(0 0 0 / 20%);
+    width: 90%;
+    max-height: 90%;
+    overflow-y: auto;
+    max-width: 500px;
+    padding: 16px;
+    box-sizing: border-box;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 0;
+}
+
+#statistics {
+    display: flex;
+    padding-bottom: 10px;
+}
+
+#guess-distribution {
+    width: 80%;
+}
+
+#statistics, #guess-distribution {
+    padding-bottom: 10px;
+}
+
+.statistics-container {
+    flex: 1;
+}
+
+.statistics-container .statistic {
+    font-size: 36px;
+    font-weight: 400;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    letter-spacing: 0.05em;
+    font-variant-numeric: proportional-nums;
+}
+
+.statistics-container .label {
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+
+.graph-container {
+    width: 100%;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    padding-bottom: 4px;
+    font-size: 14px;
+    line-height: 20px;
+}
+
+.graph-container .graph {
+    width: 100%;
+    height: 100%;
+    padding-left: 4px;
+}
+
+.graph-container .graph .graph-bar {
+    height: 100%;
+    position: relative;
+    background-color: #3a3a3c;
+    display: flex;
+    justify-content: center;
+}
+
+.graph-container .graph .num-guesses {
+    font-weight: bold;
+    color: #d7dadc;
+}
+
+.footer {
+    display: flex;
+    width: 100%;
+}
+
+.countdown {
+    border-right: 1px solid #d7dadc;
+    padding-right: 12px;
+    width: 50%;
+}
+
+@keyframes SlideIn {
+    0% {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0px);
+        opacity: 1;
+    }
+} 
+
+@keyframes SlideOut {
+    0% {
+        transform: translateY(0px);
+        opacity: 1;
+    }
+    90% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(60px);
+    }
 }
 
 .todo {

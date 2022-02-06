@@ -5,112 +5,92 @@ import "./index.css";
 
 import SvgHelp from "./iconComponents/help";
 import SvgSetting from "./iconComponents/setting";
-import SvgBackspace from "./iconComponents/backspace";
+import SvgClose from "./iconComponents/close";
+import SvgStatistics from "./iconComponents/statistics";
+
 import Button from "./buttonComponents/button"; 
+import Board from "./gameComponents/board";
+import KeyBoard from "./gameComponents/keyboard";
 
-class Tile extends React.Component {
+ 
+
+class Statistics extends React.Component {
     render() {
         return (
-            <div 
-                className="tile" 
-                style={{backgroundColor: this.props.color}} 
-                tabIndex={"0"}
-            >
-                {this.props.value}
+            <>
+                <h1>Statistics</h1>
+                <div id="statistics">
+                    <div className="statistics-container">
+                        <div className="statistic">12</div>
+                        <div className="label">Played</div>
+                    </div>
+                    <div className="statistics-container">
+                        <div className="statistic">75</div>
+                        <div className="label">Win %</div>
+                    </div>
+                    <div className="statistics-container">
+                        <div className="statistic">2</div>
+                        <div className="label">Current Streak</div>
+                    </div>
+                    <div className="statistics-container">
+                        <div className="statistic">5</div>
+                        <div className="label">Max Streak</div>
+                    </div>
+                </div>
+            </>
+        );
+    }
+}
+
+class GuessGraph extends React.Component {
+    render() {
+        return (
+        <div className="graph-container">
+            <div className="guess">{this.props.guess}</div>
+            <div className="graph">
+                <div className="graph-bar" style={{width: this.props.width}}>
+                    <div className="num-guesses">{this.props.count}</div>
+                </div>
+            </div>
+        </div>
+        ); 
+    }
+}
+
+class GuessDistribution extends React.Component {
+    render() {
+        return (
+            <div id="guess-distribution">
+                <h1>Guess Distribution</h1>
+                <GuessGraph guess={1} width={"7%"} count={0}/> 
+                <GuessGraph guess={2} width={"7%"} count={0}/> 
+                <GuessGraph guess={3} width={"7%"} count={0}/> 
+                <GuessGraph guess={4} width={"7%"} count={0}/> 
+                <GuessGraph guess={5} width={"7%"} count={0}/> 
+                <GuessGraph guess={6} width={"7%"} count={0}/> 
             </div>
         );
     }
 }
 
-class BoardRow extends React.Component {
-    renderTile(i) {
-        return <Tile 
-            value={this.props.data[i]}
-            color={this.props.tileColors[i]}
-        />
-    }
-
+class Footer extends React.Component {
     render() {
         return (
-            <div id="board-row">
-                {this.renderTile(0)}
-                {this.renderTile(1)}
-                {this.renderTile(2)}
-                {this.renderTile(3)}
-                {this.renderTile(4)}
+            <div className="footer">
+                <div className="countdown">
+                    <h1>Next WORDLE</h1>
+                    <div id="timer">
+                        <div className="statistics-container">
+                            <div className="statistic timer">
+                                <div id="timer">08:25:30</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         );
     }
 }
-
-class Board extends React.Component {
-    render() {
-        return (
-            <div id="board">
-                <BoardRow data={this.props.boardState[0]} tileColors={this.props.boardColor[0]}/>
-                <BoardRow data={this.props.boardState[1]} tileColors={this.props.boardColor[1]}/>
-                <BoardRow data={this.props.boardState[2]} tileColors={this.props.boardColor[2]}/>
-                <BoardRow data={this.props.boardState[3]} tileColors={this.props.boardColor[3]}/>
-                <BoardRow data={this.props.boardState[4]} tileColors={this.props.boardColor[4]}/>
-                <BoardRow data={this.props.boardState[5]} tileColors={this.props.boardColor[5]}/>
-            </div>
-        );
-    }
-}
-
-class KeyBoard extends React.Component {
-    topRowData = ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"];
-    middleRowData = ["a", "s", "d", "f", "g", "h", "j", "k", "l"];
-    bottomRowData = ["z", "x", "c", "v", "b", "n", "m"];
-
-    handleButtonClick(data) {
-        window.dispatchEvent(new KeyboardEvent("keydown", {"key": data}));
-    }
-
-    keyBoardRow(data) {
-        const row = [];
-        for (let i = 0; i < data.length; i++) {
-            row.push(
-                <Button 
-                    key={data[i]} 
-                    data={data[i]}
-                    onClick={() => this.handleButtonClick(data[i])}
-                    style={{backgroundColor: this.props.data[data[i]]}}
-                />
-            );
-        }
-
-        return row;
-    }
-
-    render() {
-        return(
-            <div id="keyboard">
-                <div className="row">
-                    {this.keyBoardRow(this.topRowData)}
-                </div>
-                <div className="row">
-                    <div className="spacer half"></div>
-                    {this.keyBoardRow(this.middleRowData)}
-                    <div className="spacer half"></div>
-                </div>
-                <div className="row">
-                    <Button 
-                        className="one-and-a-half" 
-                        data="enter"
-                        onClick={() => this.handleButtonClick("Enter")}
-                    />
-                    {this.keyBoardRow(this.bottomRowData)}
-                    <Button 
-                        className="one-and-a-half" 
-                        data={<SvgBackspace height={24} width={24}/>}
-                        onClick={() => this.handleButtonClick("Backspace")}
-                    />
-                </div>
-            </div>
-        );
-    }
-} 
 
 class Game extends React.Component {
     tileEmpty = "#000000";
@@ -132,9 +112,16 @@ class Game extends React.Component {
             activeRow: 0,
             activeTileIndex: 0,
             correctWord: "hello",
+            displayStatistics: true,
+            statisticsAnimation: "SlideIn 1000ms",
+            correctWordGuessed: false,
         }
 
         this.handleKeyDown = this.handleKeyDown.bind(this);
+        this.handleHelpButtonClick = this.handleHelpButtonClick.bind(this);
+        this.handleSettingButtonClick = this.handleSettingButtonClick.bind(this);
+        this.handleStatisticsButtonClick = this.handleStatisticsButtonClick.bind(this);
+        this.handleCloseClick = this.handleCloseClick.bind(this);
     }
 
     checkUserGuess(guess) {
@@ -163,7 +150,7 @@ class Game extends React.Component {
                 --correctWordCharCount[guess.charAt(i)];
             }
         }
-
+        
         return tileColors;
     }
 
@@ -172,7 +159,8 @@ class Game extends React.Component {
         const boardState = this.state.boardState.slice();
         var boardRow = this.state.activeRow;
         var tileIndex = this.state.activeTileIndex;
-        if (keyPressed.length === 1 && keyPressed.match(/[a-z]/i)) {
+        var finished = this.state.correctWordGuessed;
+        if (keyPressed.length === 1 && keyPressed.match(/[a-z]/i) && !finished) {
            if (boardRow < boardState.length && tileIndex < boardState[0].length) {
                boardState[boardRow][tileIndex] = keyPressed.toLowerCase();
            }
@@ -186,7 +174,7 @@ class Game extends React.Component {
                    activeTileIndex: tileIndex,
                }
            );
-        } else if (keyPressed === "Backspace") {
+        } else if (keyPressed === "Backspace" && !finished) {
             // TODO: Fix backspace key error after last row and last letter filled
             if (tileIndex > 0) {
                 tileIndex--;
@@ -198,15 +186,22 @@ class Game extends React.Component {
                     activeTileIndex: tileIndex,
                     activeRow: boardRow,
             });
-        } else if (keyPressed === "Enter" && tileIndex === boardState[0].length) {
+        } else if (keyPressed === "Enter" && tileIndex === boardState[0].length && !finished) {
             const boardColor = this.state.boardColor;
             const keyboardColor = this.state.keyBoardColor;
+            let finished = false;
             // Change game colors 
-            boardColor[boardRow] = this.checkUserGuess(this.state.boardState[boardRow].join(""));
+            boardColor[boardRow]= this.checkUserGuess(this.state.boardState[boardRow].join(""));
             for (let i = 0; i < boardState[boardRow].length; i++) {
                 const guessChar = boardState[boardRow][i];
-                console.log();
                 keyboardColor[guessChar] = boardColor[boardRow][i];
+            }
+
+            // Check if game is finished
+            const guessColor = boardColor[boardRow]
+            const endColor = Array(5).fill(this.tileColorCorrect);
+            if (guessColor.length === endColor.length && guessColor.every((value, index) => value === endColor[index])) {
+                finished = true;
             }
 
             tileIndex = 0;
@@ -219,7 +214,11 @@ class Game extends React.Component {
                 keyboardColor: keyboardColor,
                 activeRow: boardRow,
                 activeTileIndex: tileIndex,
+                displayStatistics: finished,
+                statisticsAnimation: finished === true ? "SlideIn 1000ms" : "SlideOut 1000ms",
+                correctWordGuessed: finished,
             });
+
         }
     }
 
@@ -231,6 +230,25 @@ class Game extends React.Component {
         console.log("Clicked Setting Button!");
     }
 
+    handleStatisticsButtonClick() {
+        this.setState({
+            displayStatistics: true,
+            statisticsAnimation: "SlideIn 1000ms",
+        });
+    }
+
+    handleCloseClick() {
+        this.setState({
+            statisticsAnimation: "SlideOut 1000ms",
+        });
+
+        setTimeout(() => {
+            this.setState({
+                displayStatistics: false,
+            })
+        }, 900);
+    }
+
     render() {
         window.addEventListener("keydown", this.handleKeyDown);
         return (
@@ -239,17 +257,22 @@ class Game extends React.Component {
                     <div className="menu">
                         <Button 
                             id={"help-button"}
-                            data={<SvgHelp height={35} width={35}/>}
+                            data={<SvgHelp height={24} width={24} fill={"#565758"}/>}
                             onClick={() => this.handleHelpButtonClick()}
                         /> 
                     </div>
                     <div className="title">WORDLE</div>
                     <div className="menu">
-                       <Button 
+                        <Button 
+                            id={"statistics-button"}
+                            data={<SvgStatistics height={24} width={24} fill={"#565758"}/>}
+                            onClick={() => this.handleStatisticsButtonClick()}
+                        />
+                        <Button 
                             id={"setting-button"}
-                            data={<SvgSetting height={35} width={35}/>}
+                            data={<SvgSetting height={24} width={24} fill={"#565758"}/>}
                             onClick={() => this.handleSettingButtonClick()}
-                       /> 
+                        /> 
                     </div>
                 </header>
                 <div id="board-container">
@@ -257,6 +280,30 @@ class Game extends React.Component {
                 </div>
                 <div id="game-keyboard">
                     <KeyBoard data={this.state.keyBoardColor}/>
+                </div>
+                <div>
+                    <div className="overlay" style={{display: this.state.displayStatistics === true ? "flex" : "none"}}>
+                        <div className="content" style={{animation: this.state.statisticsAnimation}}>
+                            <SvgClose 
+                                height={24} 
+                                width={24}
+                                style={{
+                                    position: "absolute",
+                                    top: "10px",
+                                    right: " 16px",
+                                    cursor: "pointer",
+                                    userSelect: "none",
+                                    fill: "#565758",
+                                }}
+                                onClick={() => this.handleCloseClick()}
+                            />
+                            <div className="container">
+                                <Statistics /> 
+                                <GuessDistribution />
+                                <Footer />
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             
