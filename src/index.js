@@ -87,6 +87,9 @@ class Footer extends React.Component {
                         </div>
                     </div>
                 </div>
+                <div className="reset">
+                    <Button id="reset-button" data="Reset" onClick={() => this.props.onClick()}/>
+                </div>
             </div>
         );
     }
@@ -111,10 +114,11 @@ class Game extends React.Component {
                             "y": "", "z": ""},
             activeRow: 0,
             activeTileIndex: 0,
-            correctWord: "hello",
+            correctWord: "",
             displayStatistics: true,
             statisticsAnimation: "SlideIn 1000ms",
             correctWordGuessed: false,
+            gameFinished: false,
         }
 
         this.handleKeyDown = this.handleKeyDown.bind(this);
@@ -122,6 +126,24 @@ class Game extends React.Component {
         this.handleSettingButtonClick = this.handleSettingButtonClick.bind(this);
         this.handleStatisticsButtonClick = this.handleStatisticsButtonClick.bind(this);
         this.handleCloseClick = this.handleCloseClick.bind(this);
+
+        this.fetchWord().then(word => {
+            this.state.correctWord = word["word"]; 
+        });
+    }
+
+    async fetchWord() {
+        const respose = await fetch("/word-generator/");
+        const time = await respose.json();
+
+        return time;
+    }
+
+    async fetchGuess() {
+        const response = await fetch("/word/hello");
+        const define = await response.json();
+
+        return define;
     }
 
     checkUserGuess(guess) {
@@ -150,6 +172,8 @@ class Game extends React.Component {
                 --correctWordCharCount[guess.charAt(i)];
             }
         }
+
+        // (nilp) TODO: If YEMEN, and first E yellow and second grey, keyboard E should be yellow not grey
         
         return tileColors;
     }
@@ -159,8 +183,8 @@ class Game extends React.Component {
         const boardState = this.state.boardState.slice();
         var boardRow = this.state.activeRow;
         var tileIndex = this.state.activeTileIndex;
-        var finished = this.state.correctWordGuessed;
-        if (keyPressed.length === 1 && keyPressed.match(/[a-z]/i) && !finished) {
+        var gameFinished = this.state.gameFinished;
+        if (keyPressed.length === 1 && keyPressed.match(/[a-z]/i) && !gameFinished) {
            if (boardRow < boardState.length && tileIndex < boardState[0].length) {
                boardState[boardRow][tileIndex] = keyPressed.toLowerCase();
            }
@@ -174,7 +198,7 @@ class Game extends React.Component {
                    activeTileIndex: tileIndex,
                }
            );
-        } else if (keyPressed === "Backspace" && !finished) {
+        } else if (keyPressed === "Backspace" && !gameFinished) {
             // TODO: Fix backspace key error after last row and last letter filled
             if (tileIndex > 0) {
                 tileIndex--;
@@ -186,10 +210,11 @@ class Game extends React.Component {
                     activeTileIndex: tileIndex,
                     activeRow: boardRow,
             });
-        } else if (keyPressed === "Enter" && tileIndex === boardState[0].length && !finished) {
+        } else if (keyPressed === "Enter" && tileIndex === boardState[0].length && !gameFinished) {
             const boardColor = this.state.boardColor;
             const keyboardColor = this.state.keyBoardColor;
             let finished = false;
+            let gameFinished = false;
             // Change game colors 
             boardColor[boardRow]= this.checkUserGuess(this.state.boardState[boardRow].join(""));
             for (let i = 0; i < boardState[boardRow].length; i++) {
@@ -202,11 +227,16 @@ class Game extends React.Component {
             const endColor = Array(5).fill(this.tileColorCorrect);
             if (guessColor.length === endColor.length && guessColor.every((value, index) => value === endColor[index])) {
                 finished = true;
+                gameFinished = true;
             }
 
             tileIndex = 0;
             if (boardRow < boardState.length) {
                 boardRow++;
+            }
+            // Game finished without winning
+            if (boardRow === boardState.length) {
+                gameFinished = true;
             }
 
             this.setState({
@@ -214,9 +244,10 @@ class Game extends React.Component {
                 keyboardColor: keyboardColor,
                 activeRow: boardRow,
                 activeTileIndex: tileIndex,
-                displayStatistics: finished,
-                statisticsAnimation: finished === true ? "SlideIn 1000ms" : "SlideOut 1000ms",
+                displayStatistics: gameFinished,
+                statisticsAnimation: gameFinished === true ? "SlideIn 1000ms" : "SlideOut 1000ms",
                 correctWordGuessed: finished,
+                gameFinished: gameFinished,
             });
 
         }
@@ -247,6 +278,37 @@ class Game extends React.Component {
                 displayStatistics: false,
             })
         }, 900);
+    }
+
+    handleReset() {
+        // Also want to be able to reset if game-over
+        if (this.state.correctWordGuessed || this.state.gameFinished) {
+            console.log("Word was: " + this.state.correctWord);
+            this.setState({
+                boardState: Array.from({length: 6}, e => Array(5).fill(null)),
+                boardColor: Array.from({length: 6}, e => Array(5).fill(this.tileEmpty)),
+                keyBoardColor: {"a": "", "b": "", "c": "", "d": "",
+                                "e": "", "f": "", "g": "", "h": "",
+                                "i": "", "j": "", "k": "", "l": "",
+                                "m": "", "n": "", "o": "", "p": "",
+                                "q": "", "r": "", "s": "", "t": "",
+                                "u": "", "v": "", "w": "", "x": "",
+                                "y": "", "z": ""},
+                activeRow: 0,
+                activeTileIndex: 0,
+                correctWord: "",
+                displayStatistics: true,
+                statisticsAnimation: "SlideOut 1000ms",
+                correctWordGuessed: false,
+                gameFinished: false,
+            });
+            this.fetchWord().then(word => {
+                this.state.correctWord = word["word"]; 
+            });
+            this.handleCloseClick();
+        } else {
+            console.log("cannot reset yet");
+        }
     }
 
     render() {
@@ -300,7 +362,7 @@ class Game extends React.Component {
                             <div className="container">
                                 <Statistics /> 
                                 <GuessDistribution />
-                                <Footer />
+                                <Footer onClick={() => this.handleReset()}/>
                             </div>
                         </div>
                     </div>

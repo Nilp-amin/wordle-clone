@@ -256,6 +256,37 @@ button {
     width: 50%;
 }
 
+.reset {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-left: 12px;
+    width: 50%;
+}
+
+
+button#reset-button {
+    background-color: #538d4e;
+    color: #d7dadc;
+    font-family: inherit;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    border: none;
+    user-select: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-transform: uppercase;
+    -webkit-tap-highlight-color: rgba(0,0,0,0.3);
+    width: 80%;
+    font-size: 20px;
+    height: 52px;
+    -webkit-filter: brightness(100%);
+}
+
+
+
 @keyframes SlideIn {
     0% {
         transform: translateY(30px);

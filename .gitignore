@@ -11,6 +11,9 @@
 # production
 /build
 
+# private
+/backend/database/user_info.json
+
 # misc
 .DS_Store
 .env.local
